@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenGradient $OPEN Checker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: #0d0d0d;
+  font-family: 'Inter', sans-serif;
+  color: #fff;
+  min-height: 100vh;
+  padding: 28px 20px 80px;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 28px;
+}
+.logo {
+  width: 54px; height: 54px; border-radius: 14px;
+  background: linear-gradient(135deg, #7c3aed, #22d3ee);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 900; color: #fff;
+  flex-shrink: 0; letter-spacing: -1px;
+}
+.header-text h1 { font-size: 20px; font-weight: 800; line-height: 1.2; }
+.header-text p { font-size: 13px; color: #666; margin-top: 3px; }
+
+/* TABS */
+.tabs {
+  display: flex; gap: 8px;
+  margin-bottom: 12px;
+}
+.tab {
+  flex: 1; padding: 10px;
+  border-radius: 10px; border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #666; font-size: 13px; font-weight: 600;
+  cursor: pointer; text-align: center;
+  transition: all 0.2s;
+}
+.tab.active {
+  background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(34,211,238,0.15));
+  border-color: #7c3aed;
+  color: #fff;
+}
+
+/* SEARCH BOX */
+.search-box {
+  background: #1a1a1a;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.search-input {
+  width: 100%;
+  background: #262626;
+  border: 1.5px solid #333;
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  font-size: 15px;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.search-input:focus { border-color: #7c3aed; }
+.search-input::placeholder { color: #444; }
+
+.btn-row { display: flex; gap: 10px; }
+.btn {
+  flex: 1; padding: 13px 10px;
+  border-radius: 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px; font-weight: 600;
+  cursor: pointer; border: none;
+  transition: all 0.2s;
+}
+.btn-search {
+  background: linear-gradient(135deg, #7c3aed, #22d3ee);
+  color: #fff;
+}
+.btn-search:hover { opacity: 0.9; transform: translateY(-1px); }
+.btn-search:active { transform: translateY(0); }
+.btn-clear {
+  background: #262626; color: #777;
+  border: 1px solid #333; flex: 0.5;
+}
+.btn-clear:hover { background: #2e2e2e; }
+
+/* STATUS */
+.status-text {
+  color: #444; font-size: 14px; text-align: center;
+  padding: 30px 0;
+}
+
+/* LOADING */
+.loading { display: none; text-align: center; padding: 36px 0; }
+.spinner {
+  width: 38px; height: 38px;
+  border: 3px solid #222; border-top-color: #7c3aed;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin: 0 auto 16px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-title { color: #ccc; font-size: 14px; font-weight: 600; }
+.loading-step { color: #555; font-size: 12px; margin-top: 6px; }
+
+/* RESULT CARD */
+.result-card {
+  display: none;
+  background: #161616;
+  border-radius: 20px;
+  border: 1px solid #252525;
+  overflow: hidden;
+  margin-bottom: 16px;
+  animation: fadeUp 0.4s ease;
+}
+
+.card-top {
+  background: linear-gradient(135deg, rgba(124,58,237,0.18), rgba(34,211,238,0.1));
+  padding: 28px 20px 20px;
+  text-align: center;
+  border-bottom: 1px solid #222;
+}
+
+.card-identity {
+  font-size: 16px; font-weight: 700; color: #ccc;
+  margin-bottom: 4px; word-break: break-all;
+}
+.card-identity span { color: #a78bfa; }
+
+.card-sublabel {
+  font-size: 10px; color: #555;
+  letter-spacing: 4px; margin-bottom: 20px;
+  text-transform: uppercase;
+}
+
+.card-amount {
+  font-size: clamp(52px, 15vw, 80px);
+  font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, #fff 20%, #a78bfa 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.card-token-label {
+  font-size: 15px; color: #a78bfa;
+  font-weight: 600; letter-spacing: 3px; margin-top: 6px;
+}
+
+.card-tier {
+  display: inline-block; margin-top: 16px;
+  padding: 7px 22px; border-radius: 20px;
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+}
+.tier-s { background: rgba(167,139,250,0.15); color: #a78bfa; border: 1px solid rgba(167,139,250,0.35); }
+.tier-a { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.tier-b { background: rgba(52,211,153,0.12); color: #34d399; border: 1px solid rgba(52,211,153,0.3); }
+.tier-c { background: rgba(34,211,238,0.1); color: #22d3ee; border: 1px solid rgba(34,211,238,0.25); }
+.tier-d { background: rgba(255,255,255,0.05); color: #666; border: 1px solid #2a2a2a; }
+
+/* STATS */
+.card-stats {
+  display: grid; grid-template-columns: repeat(3,1fr);
+  border-bottom: 1px solid #222;
+}
+.stat {
+  padding: 16px 12px; text-align: center;
+  border-right: 1px solid #222;
+}
+.stat:last-child { border-right: none; }
+.stat-val { font-size: 18px; font-weight: 700; color: #fff; }
+.stat-label { font-size: 10px; color: #555; margin-top: 4px; letter-spacing: 1px; }
+
+/* SHARE BTN */
+.share-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #7c3aed, #22d3ee);
+  border: none; border-radius: 12px;
+  padding: 15px;
+  color: #fff; font-family: 'Inter', sans-serif;
+  font-size: 14px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 16px;
+}
+.share-btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+/* LEADERBOARD */
+.lb-title {
+  font-size: 13px; font-weight: 700; color: #888;
+  letter-spacing: 2px; margin-bottom: 12px;
+  display: flex; align-items: center; gap: 10px;
+}
+.lb-title::after {
+  content:''; flex:1; height:1px; background: #222;
+}
+
+.lb-row {
+  display: flex; align-items: center; gap: 12px;
+  background: #161616; border: 1px solid #222;
+  border-radius: 12px; padding: 13px 15px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+  animation: fadeUp 0.3s ease backwards;
+}
+.lb-row:hover { border-color: #333; transform: translateX(3px); }
+.lb-row.me { border-color: rgba(124,58,237,0.4); background: rgba(124,58,237,0.07); }
+
+.lb-rank {
+  font-size: 15px; font-weight: 800;
+  width: 26px; text-align: center; flex-shrink: 0;
+}
+.r1 { color: #fbbf24; }
+.r2 { color: #9ca3af; }
+.r3 { color: #cd7f32; }
+.rn { color: #444; font-size: 12px; }
+
+.lb-name {
+  flex: 1; font-size: 13px; color: #aaa;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.lb-name b { color: #fff; }
+
+.lb-amt {
+  font-size: 14px; font-weight: 700; color: #a78bfa;
+  flex-shrink: 0;
+}
+
+.lb-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.empty-lb {
+  text-align: center; color: #333; font-size: 13px;
+  padding: 30px; border: 1px dashed #222; border-radius: 12px;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center; margin-top: 40px;
+  font-size: 12px; color: #333;
+}
+.footer span { color: #a78bfa; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: #34d399; color: #000;
+  font-size: 12px; font-weight: 700; letter-spacing: 2px;
+  padding: 10px 24px; border-radius: 30px;
+  opacity: 0; transition: all 0.3s; pointer-events: none; z-index: 99;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(12px); }
+  to { opacity:1; transform: translateY(0); }
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">OG</div>
+  <div class="header-text">
+    <h1>OpenGradient $OPEN</h1>
+    <p>Search X handle or wallet address</p>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" id="tab-x" onclick="switchTab('x')">𝕏 X Handle</div>
+  <div class="tab" id="tab-w" onclick="switchTab('wallet')">⬡ Wallet</div>
+</div>
+
+<!-- SEARCH BOX -->
+<div class="search-box">
+  <input class="search-input" id="searchInput" placeholder="@your_handle" type="text" maxlength="100">
+  <div class="btn-row">
+    <button class="btn btn-search" onclick="doCheck()">🔍 Check</button>
+    <button class="btn btn-clear" onclick="clearAll()">Clear</button>
+  </div>
+</div>
+
+<!-- STATUS -->
+<div class="status-text" id="statusText">Search to show data</div>
+
+<!-- LOADING -->
+<div class="loading" id="loadingBox">
+  <div class="spinner"></div>
+  <div class="loading-title">Scanning...</div>
+  <div class="loading-step" id="loadStep">Connecting to node...</div>
+</div>
+
+<!-- RESULT -->
+<div class="result-card" id="resultCard">
+  <div class="card-top">
+    <div class="card-identity" id="cardIdentity"></div>
+    <div class="card-sublabel">ESTIMATED ALLOCATION</div>
+    <div class="card-amount" id="cardAmount">0</div>
+    <div class="card-token-label">$OPEN TOKENS</div>
+    <div class="card-tier" id="cardTier"></div>
+  </div>
+  <div class="card-stats">
+    <div class="stat">
+      <div class="stat-val" id="statRank">#—</div>
+      <div class="stat-label">RANK</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="statTop">—%</div>
+      <div class="stat-label">TOP %</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" id="statMult">—×</div>
+      <div class="stat-label">MULTIPLIER</div>
+    </div>
+  </div>
+</div>
+
+<!-- SHARE -->
+<button class="share-btn" id="shareBtn" style="display:none" onclick="shareResult()">
+  𝕏 &nbsp; Share My Allocation
+</button>
+
+<!-- LEADERBOARD -->
+<div class="lb-title">LEADERBOARD</div>
+<div id="lbList"><div class="empty-lb">No submissions yet — be the first 👀</div></div>
+
+<!-- FOOTER -->
+<div class="footer">Made with ❤️ for <span>OpenGradient</span> community<br>by <span>SAIFUL</span></div>
+
+<div class="toast" id="toast">COPIED ✓</div>
+
+<script>
+let activeTab = 'x';
+let leaderboard = [];
+let currentResult = null;
+
+const steps = [
+  'Connecting to node...',
+  'Fetching onchain activity...',
+  'Analyzing wallet history...',
+  'Calculating eligibility score...',
+  'Computing $OPEN allocation...',
+  'Done ✓'
+];
+
+function switchTab(tab) {
+  activeTab = tab;
+  document.getElementById('tab-x').className = 'tab' + (tab === 'x' ? ' active' : '');
+  document.getElementById('tab-w').className = 'tab' + (tab === 'wallet' ? ' active' : '');
+  const input = document.getElementById('searchInput');
+  input.placeholder = tab === 'x' ? '@your_handle' : '0x... wallet address';
+  input.value = '';
+  clearAll();
+}
+
+function generateAllocation(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  hash = Math.abs(hash);
+  const seed = (hash % 10000) / 10000;
+  let tokens;
+  if (seed < 0.05)       tokens = 80000 + (hash % 70000);
+  else if (seed < 0.15)  tokens = 30000 + (hash % 50000);
+  else if (seed < 0.40)  tokens = 10000 + (hash % 20000);
+  else if (seed < 0.75)  tokens = 3000  + (hash % 7000);
+  else                   tokens = 500   + (hash % 2500);
+
+  const mults = [1.0, 1.0, 1.25, 1.25, 1.5, 2.0];
+  const mult = mults[hash % mults.length];
+  tokens = Math.round(tokens * mult);
+  return { tokens, mult };
+}
+
+function getTier(t) {
+  if (t >= 100000) return { label: '🔥 TIER S — WHALE',      cls: 'tier-s', color: '#a78bfa' };
+  if (t >= 40000)  return { label: '⚡ TIER A — OG FARMER',  cls: 'tier-a', color: '#fbbf24' };
+  if (t >= 15000)  return { label: '✦ TIER B — SOLID',       cls: 'tier-b', color: '#34d399' };
+  if (t >= 5000)   return { label: '◈ TIER C — GROWING',     cls: 'tier-c', color: '#22d3ee' };
+  return            { label: '○ TIER D — EARLY',              cls: 'tier-d', color: '#555' };
+}
+
+function shorten(s) {
+  if (s.startsWith('@')) return s;
+  if (s.startsWith('0x') && s.length > 12) return s.slice(0,6)+'...'+s.slice(-4);
+  if (s.length > 18) return s.slice(0,6)+'...'+s.slice(-4);
+  return s;
+}
+
+async function doCheck() {
+  let val = document.getElementById('searchInput').value.trim();
+  if (!val) return;
+  if (activeTab === 'x' && !val.startsWith('@')) val = '@' + val;
+
+  document.getElementById('statusText').style.display = 'none';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('shareBtn').style.display = 'none';
+  document.getElementById('loadingBox').style.display = 'block';
+
+  let s = 0;
+  const si = setInterval(() => {
+    if (s < steps.length) document.getElementById('loadStep').textContent = steps[s++];
+  }, 400);
+
+  await new Promise(r => setTimeout(r, 2600));
+  clearInterval(si);
+  document.getElementById('loadingBox').style.display = 'none';
+
+  const { tokens, mult } = generateAllocation(val);
+  const tier = getTier(tokens);
+
+  const idx = leaderboard.findIndex(e => e.id === val);
+  if (idx >= 0) leaderboard[idx] = { id: val, tokens, color: tier.color, tier: tier.label };
+  else leaderboard.push({ id: val, tokens, color: tier.color, tier: tier.label });
+  leaderboard.sort((a,b) => b.tokens - a.tokens);
+
+  const rank = leaderboard.findIndex(e => e.id === val) + 1;
+  const topPct = Math.max(1, Math.round((1 - rank/leaderboard.length)*100));
+
+  currentResult = { id: val, tokens, mult, tier, rank, topPct };
+
+  document.getElementById('cardIdentity').innerHTML = `<span>${shorten(val)}</span>`;
+  document.getElementById('cardAmount').textContent = tokens.toLocaleString();
+  document.getElementById('cardTier').textContent = tier.label;
+  document.getElementById('cardTier').className = 'card-tier ' + tier.cls;
+  document.getElementById('statRank').textContent = '#' + rank;
+  document.getElementById('statTop').textContent = 'TOP ' + topPct + '%';
+  document.getElementById('statMult').textContent = mult + '×';
+
+  document.getElementById('resultCard').style.display = 'block';
+  document.getElementById('shareBtn').style.display = 'flex';
+
+  renderLB(val);
+
+  try { await window.storage.set('open_lb', JSON.stringify(leaderboard), true); } catch(e) {}
+}
+
+function renderLB(highlight) {
+  const list = document.getElementById('lbList');
+  if (!leaderboard.length) {
+    list.innerHTML = '<div class="empty-lb">No submissions yet — be the first 👀</div>';
+    return;
+  }
+  list.innerHTML = '';
+  leaderboard.slice(0,20).forEach((e,i) => {
+    const r = i+1;
+    const isMe = e.id === highlight;
+    const div = document.createElement('div');
+    div.className = 'lb-row' + (isMe ? ' me' : '');
+    div.style.animationDelay = (i*0.04)+'s';
+    let rankHtml = `<div class="lb-rank rn">${r}</div>`;
+    if (r===1) rankHtml = `<div class="lb-rank r1">🥇</div>`;
+    else if (r===2) rankHtml = `<div class="lb-rank r2">🥈</div>`;
+    else if (r===3) rankHtml = `<div class="lb-rank r3">🥉</div>`;
+    div.innerHTML = `
+      ${rankHtml}
+      <div class="lb-name"><b>${shorten(e.id)}</b></div>
+      <div class="lb-dot" style="background:${e.color}"></div>
+      <div class="lb-amt">${e.tokens.toLocaleString()}</div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function clearAll() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('resultCard').style.display = 'none';
+  document.getElementById('shareBtn').style.display = 'none';
+  document.getElementById('statusText').style.display = 'block';
+  currentResult = null;
+}
+
+function shareResult() {
+  if (!currentResult) return;
+  const { id, tokens, tier, rank } = currentResult;
+  const text = `⬡ Just checked my @OpenGradient $OPEN allocation!\n\n💰 ${tokens.toLocaleString()} $OPEN\n${tier.label}\n🏆 Rank #${rank}\n\nCheck yours 👇\n#OpenGradient #OPEN #Airdrop #Web3`;
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(showToast);
+  window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+async function loadLB() {
+  try {
+    const r = await window.storage.get('open_lb', true);
+    if (r?.value) { leaderboard = JSON.parse(r.value); renderLB(null); }
+  } catch(e) {}
+}
+
+loadLB();
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doCheck();
+});
+</script>
+</body>
+</html>
