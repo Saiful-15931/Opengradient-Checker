@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OpenGradient $OPEN Checker</title>
+<title>OpenGradient $OPG Checker</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
@@ -490,7 +490,7 @@ function clearAll() {
 function shareResult() {
   if (!currentResult) return;
   const { id, tokens, tier, rank } = currentResult;
-  const text = `⬡ Just checked my @OpenGradient $OPEN allocation!\n\n💰 ${tokens.toLocaleString()} $OPEN\n${tier.label}\n🏆 Rank #${rank}\n\nCheck yours 👇\n#OpenGradient #OPEN #Airdrop #Web3`;
+  const text = `⬡ Just checked my @OpenGradient $OPG allocation!\n\n💰 ${tokens.toLocaleString()} $OPG\n${tier.label}\n🏆 Rank #${rank}\n\nCheck yours 👇\n#OpenGradient #OPEN #Airdrop #Web3`;
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(showToast);
   window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
 }
